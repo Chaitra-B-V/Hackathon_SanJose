@@ -18,8 +18,11 @@ const twilioClient = twilio(
 app.get("/make-call", async (req: Request, res: Response) => {
   try {
     const call = await twilioClient.calls.create({
-      twiml:
-        '<Response><Say>Hello! Start talking and the live audio will be streamed to your app</Say><Start><Stream name="stream1" url="wss://d236-208-95-232-29.ngrok-free.app/audiostream" /></Start><Pause length="30" /></Response>',
+      twiml: `<Response>
+                <Connect>
+                  <Stream name="stream1" url="wss://${process.env.NGROK_BASE_URL}/audiostream" />
+                </Connect>
+              </Response>`,
       to: process.env.DIAL_TO_NUMBER,
       from: process.env.TWILIO_PHONE_NUMBER,
     });
@@ -29,7 +32,8 @@ app.get("/make-call", async (req: Request, res: Response) => {
     res.status(500).json({ error: error.message });
   }
 });
-app.post("/audio-stream", (req: Request, res: Response) => {});
+
+app.post("/twiml-hook", (req: Request, res: Response) => {});
 
 const server = http.createServer(app);
 server.listen(1337, "127.0.0.1");
@@ -40,12 +44,7 @@ const wss = new websock.Server({ server });
 wss.on("connection", (ws: any) => {
   ws.on("message", (message: any) => {
     // Handle incoming audio stream data
-    console.log("Received audio data:", message);
-  });
-
-  ws.on("audiostream", (message: any) => {
-    // Handle incoming audio stream data
-    console.log("Received audio data:", message);
+    console.log("Received audio data on message:", message);
   });
 });
 
