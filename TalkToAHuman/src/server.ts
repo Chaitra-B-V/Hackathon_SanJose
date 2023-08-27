@@ -54,6 +54,9 @@ wss.on("connection", (ws: any) => {
         break;
       case 'media':
         console.log('Media stream chunk received');
+        const payload = data.media.payload;
+        const chunk = Buffer.from(payload, 'base64');
+        console.log(`That's ${chunk.length} bytes`);
         break;
       case 'stop':
         console.log('Media stream ended');
