@@ -44,7 +44,26 @@ const wss = new websock.Server({ server });
 wss.on("connection", (ws: any) => {
   ws.on("message", (message: any) => {
     // Handle incoming audio stream data
-    console.log("Received audio data on message:", message);
+    const data = JSON.parse(message);
+    switch(data.event) {
+      case 'connected':
+        console.log('Connected to Twilio');
+        break;
+      case 'start':
+        console.log('Media stream started');
+        break;
+      case 'media':
+        console.log('Media stream chunk received');
+        break;
+      case 'stop':
+        console.log('Media stream ended');
+        break;
+      case 'error':
+        console.log('Error: ' + data.error);
+        break;
+      default:
+        console.log('Unknown event: ' + data.event);
+    }
   });
 });
 
